@@ -1,0 +1,44 @@
+#工作中很多时候想要导入某些JAR包 要么去官网下 或者 在他人博客上下， 再或者 在maven配置 但是 还要去maven仓库去找 很是麻烦
+#下面记录一个简单的办法通过maven 下载自己想要的jar包依赖
+# 1 . 首先新建一个xml文件  将下面代码copy 进去
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+ 
+    <groupId>Spider</groupId>
+    <artifactId>Spider</artifactId>
+    <version>1.0</version>
+ 
+    <dependencies>
+		<--
+        <dependency>
+			<groupId>com.thetransactioncompany</groupId>
+			<artifactId>cors-filter</artifactId>
+			<version>1.7.1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.thetransactioncompany</groupId>
+			<artifactId>java-property-utils</artifactId>
+			<version>1.9</version>
+		</dependency>
+		-->
+    </dependencies>
+ 
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <configuration>
+                    <excludeTransitive>false</excludeTransitive> 
+                    <stripVersion>true</stripVersion>
+                    <outputDirectory>./lib</outputDirectory>
+                </configuration>
+                 
+            </plugin>
+        </plugins>
+    </build>
+ 
+</project>
+# 2. cmd 到该文件目录下 执行命令  mvn dependency:copy-dependencies
