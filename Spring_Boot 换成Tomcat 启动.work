@@ -1,0 +1,63 @@
+在本地tomcat中调试Spring boot项目遇到的一些问题
+spring boot因为内嵌tomcat容器，所以可以通过打包为jar包的方法将项目发布，但是如何将spring boot项目打包成可发布到tomcat中的war包项目呢？
+
+ 
+
+1. 既然需要打包成war包项目，首先需要在pom.xml文件中修改打包类型，将spring boot默认的<packaging>jar</packaging>修改为<packaging>war< /packaging>形式；
+
+ 
+
+2. 其次spring boot的web项目中内嵌tomcat服务器，所以如果我们想要发布war包到tomcat项目，要讲spring boot中内嵌的tomcat包依赖排除，不然产生冲突，打开下面代码中的注释即可。
+
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-web</artifactId>
+    <!--
+    <exclusions>
+        <exclusion>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-tomcat</artifactId>
+        </exclusion>
+    </exclusions>
+    -->
+</dependency>   
+
+有一点想说的是，如果本地开发的时候依然想要使用spring boot内嵌tomcat进行调试，添加如下依赖即可；
+
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-tomcat</artifactId>
+    <scope>provided</scope>
+</dependency>
+ 
+3. spring boot发布jar包web程序的入口是main函数所在的类，使用@SpringBootApplication注解。但是如果war包发布至tomcat，需要增加 SpringBootServletInitializer 子类，并覆盖它的 configure 方法，或者直接将main函数所在的类继承 SpringBootServletInitializer 子类，并覆盖它的 configure 方法。代码举例如下，
+@SpringBootApplication
+public class DemoApplication extends SpringBootServletInitializer {
+     
+    @Override
+    protected SpringApplicationBuilder configure(
+            SpringApplicationBuilder application) {
+        return application.sources(DemoApplication.class);
+    }
+ 
+     
+    public static void main(String[] args) {
+        SpringApplication.run(DemoApplication.class, args);
+    }
+}
+ 
+4.maven clean-> maven install 然后报错javax.servlet.ServletException
+5.添加javax.servlet maven依赖
+6.
+<dependency>
+   <groupId>javax.servlet</groupId>
+   <artifactId>javax.servlet-api</artifactId>
+   <version>3.0.1</version>
+   <scope>provided</scope>
+</dependency>
+
+这里一定要是3.0以上才可以
+
+7.在idea中点击Run->Edit configuration->点击+新添加一个Local Tomcat server
+
+8.在Application Servers中的新添加的tomcat里添加Artifacts即可。
